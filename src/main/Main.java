@@ -1,13 +1,18 @@
 package main;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 import javax.mail.*;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMultipart;
  
 public class Main{
  
@@ -15,8 +20,6 @@ public class Main{
  private static final String password = "12345senha";
  
  public static void main(String[] args) {
- 
- 
   //set properties 
   Properties properties = new Properties();
   //You can use imap or imaps , *s -Secured
@@ -53,40 +56,17 @@ public class Main{
    int messageCount = inbox.getMessageCount();
    System.out.println("Total Messages in INBOX:- " + messageCount);
    
-   Message mensage = inbox.getMessage(messageCount);
- 
-   //Print Last 10 email information
-    System.out.println("Mail Subject:- " + mensage.getSubject());
-    System.out.println("Mail From:- " + mensage.getFrom()[0]);
-    System.out.println("Date: " + message.getSentDate());
-    System.out.println("Content:\n" + getTextFromMimeMultipart((MimeMultipart) message.getContent()));  
-    System.out.println("------------------------------------------------------------");
-    
-    //Faz o download do anexo
-    /*List<File> attachments = new ArrayList<File>();
-    for (Message message : temp) {
-        Multipart multipart = (Multipart) message.getContent();
-
-        for (int i = 0; i < multipart.getCount(); i++) {
-            BodyPart bodyPart = multipart.getBodyPart(i);
-            if(!Part.ATTACHMENT.equalsIgnoreCase(bodyPart.getDisposition()) &&
-                   (bodyPart.getFileName().replace(" ", "").isEmpty())) {
-                continue; // dealing with attachments only
-            } 
-            InputStream is = bodyPart.getInputStream();
-            // -- EDIT -- SECURITY ISSUE --
-            // do not do this in production code -- a malicious email can easily contain this filename: "../etc/passwd", or any other path: They can overwrite _ANY_ file on the system that this code has write access to!
-            File f = new File("/tmp/" + bodyPart.getFileName());
-            FileOutputStream fos = new FileOutputStream(f);
-            byte[] buf = new byte[4096];
-            int bytesRead;
-            while((bytesRead = is.read(buf))!=-1) {
-                fos.write(buf, 0, bytesRead);
-            }
-            fos.close();
-            attachments.add(f);
-        }
-    }*/
+   for (int i = 1; i <= messageCount; i++) {
+	   Message mensage = inbox.getMessage(i);
+	   
+	   //Print Last 10 email information
+	    System.out.println("Mail Subject:- " + mensage.getSubject());
+	    System.out.println("Mail From:- " + mensage.getFrom()[0]);
+	    System.out.println("Date: " + mensage.getSentDate());
+	    System.out.println("Content:\n" + getTextFromMimeMultipart((MimeMultipart) mensage.getContent()));  
+	    System.out.println("------------------------------------------------------------");
+	    
+   }
  
    inbox.close(true);
    store.close();
@@ -136,7 +116,7 @@ public class Main{
                   BufferedReader teclado = new BufferedReader(new InputStreamReader(System.in));
                   if(teclado.readLine().trim().toLowerCase().equals("y"))
                   {
-                    part.saveFile("c:/temp/attachments/" + part.getFileName());
+                    part.saveFile("c:/Temp/attachments/" + part.getFileName());
                     System.out.println("saved at c:/temp/attachments/" + part.getFileName());
                   }
                 }
