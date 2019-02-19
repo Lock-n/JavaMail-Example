@@ -20,46 +20,42 @@ public class Main{
  private static final String password = "12345senha";
  
  public static void main(String[] args) {
-  //set properties 
+  //seta as properties 
   Properties properties = new Properties();
-  //You can use imap or imaps , *s -Secured
+  //O s de imaps é para -Secured, pode ser usado só imap
   properties.put("mail.store.protocol", "imaps");
-  //Host Address of Your Mail
+  //endereço do host
   properties.put("mail.imaps.host", "imap.gmail.com");
-  //Port number of your Mail Host
+  //porta do host
   properties.put("mail.imaps.port", "993");
  
   //properties.put("mail.imaps.timeout", "10000");
  
   try {
  
-   //create a session  
+   //cria uma session
    Session session = Session.getDefaultInstance(properties, null);
-   //SET the store for IMAPS
    Store store = session.getStore("imaps");
  
-   System.out.println("Connection initiated......");
-   //Trying to connect IMAP server
+   System.out.println("Conexão iniciada......");
+   //Tenta conectar com o servidor IMAP
    store.connect(email_id, password);
-   System.out.println("Connection is ready :)");
+   System.out.println("Conexão pronta:)");
  
  
-   //Get inbox folder 
+   //acessa a pasta inbox
    Folder inbox = store.getFolder("inbox");
-   //SET readonly format (*You can set read and write)
+   //seta o formato de readonly
    inbox.open(Folder.READ_ONLY);
  
  
-   //Display email Details 
- 
-   //Inbox email count
+   //email count
    int messageCount = inbox.getMessageCount();
-   System.out.println("Total Messages in INBOX:- " + messageCount);
+   System.out.println("Qtd de mensagens no INBOX:- " + messageCount);
    
    for (int i = 1; i <= messageCount; i++) {
 	   Message mensage = inbox.getMessage(i);
-	   
-	   //Print Last 10 email information
+	    //printa as informações do email
 	    System.out.println("Mail Subject:- " + mensage.getSubject());
 	    System.out.println("Mail From:- " + mensage.getFrom()[0]);
 	    System.out.println("Date: " + mensage.getSentDate());
@@ -75,9 +71,6 @@ public class Main{
    e.printStackTrace();
   }
  
- 
- 
- 
  }
 
 
@@ -91,33 +84,32 @@ public class Main{
           {
             //is a text
               result = result + "\n" + bodyPart.getContent();
-              break; // without break same text appears twice in my tests
+              break;
           } else 
             if (bodyPart.isMimeType("text/html")) 
             {
                 String html = (String) bodyPart.getContent();
-                //to read html and exibit it, jsoup library whould be needed
             }
             else
               if (bodyPart.getContent() instanceof MimeMultipart)
               {
-                //is a MimeMultipart
+                //é um multipart
                 result = result + getTextFromMimeMultipart((MimeMultipart)bodyPart.getContent());
               }
               else 
               {
-                //attachment
+                //anexo
                 MimeBodyPart part = (MimeBodyPart) mimeMultipart.getBodyPart(i);
                 
                 if (Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition())) 
                 {
-                    // this part is attachment
-                  System.out.println("There is an attachment in the email, whould you like to save it?(Y/N)");
+                    // essa parte é o anexo
+                  System.out.println("Esse email tem um anexo, você quer salva-lo?(S/N)");
                   BufferedReader teclado = new BufferedReader(new InputStreamReader(System.in));
-                  if(teclado.readLine().trim().toLowerCase().equals("y"))
+                  if(teclado.readLine().trim().toLowerCase().equals("s"))
                   {
                     part.saveFile("c:/Temp/attachments/" + part.getFileName());
-                    System.out.println("saved at c:/temp/attachments/" + part.getFileName());
+                    System.out.println("salvo em c:/temp/attachments/" + part.getFileName());
                   }
                 }
               }
