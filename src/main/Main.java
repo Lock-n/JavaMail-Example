@@ -58,11 +58,12 @@ public class Main{
    //Print Last 10 email information
     System.out.println("Mail Subject:- " + mensage.getSubject());
     System.out.println("Mail From:- " + mensage.getFrom()[0]);
-    System.out.println("Mail Content:- " + mensage.getContent().toString());    
+    System.out.println("Date: " + message.getSentDate());
+    System.out.println("Content:\n" + getTextFromMimeMultipart((MimeMultipart) message.getContent()));  
     System.out.println("------------------------------------------------------------");
     
     //Faz o download do anexo
-    List<File> attachments = new ArrayList<File>();
+    /*List<File> attachments = new ArrayList<File>();
     for (Message message : temp) {
         Multipart multipart = (Multipart) message.getContent();
 
@@ -85,8 +86,7 @@ public class Main{
             fos.close();
             attachments.add(f);
         }
-    }
-
+    }*/
  
    inbox.close(true);
    store.close();
@@ -99,4 +99,49 @@ public class Main{
  
  
  }
+
+
+ private static String getTextFromMimeMultipart(
+      MimeMultipart mimeMultipart)  throws MessagingException, IOException{
+      String result = "";
+      int count = mimeMultipart.getCount();
+      for (int i = 0; i < count; i++) {
+          BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+          if (bodyPart.isMimeType("text/plain")) 
+          {
+            //is a text
+              result = result + "\n" + bodyPart.getContent();
+              break; // without break same text appears twice in my tests
+          } else 
+            if (bodyPart.isMimeType("text/html")) 
+            {
+                String html = (String) bodyPart.getContent();
+                //to read html and exibit it, jsoup library whould be needed
+            }
+            else
+              if (bodyPart.getContent() instanceof MimeMultipart)
+              {
+                //is a MimeMultipart
+                result = result + getTextFromMimeMultipart((MimeMultipart)bodyPart.getContent());
+              }
+              else 
+              {
+                //attachment
+                MimeBodyPart part = (MimeBodyPart) mimeMultipart.getBodyPart(i);
+                
+                if (Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition())) 
+                {
+                    // this part is attachment
+                  System.out.println("There is an attachment in the email, whould you like to save it?(Y/N)");
+                  BufferedReader teclado = new BufferedReader(new InputStreamReader(System.in));
+                  if(teclado.readLine().trim().toLowerCase().equals("y"))
+                  {
+                    part.saveFile("c:/temp/attachments/" + part.getFileName());
+                    System.out.println("saved at c:/temp/attachments/" + part.getFileName());
+                  }
+                }
+              }
+      }
+      return result;
+  }
 }
